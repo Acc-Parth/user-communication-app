@@ -16,7 +16,7 @@ app.use("/api/auth", authRoutes);
 app.use("/api/messages", msgRoutes);
 
 // Deployment ready code
-if(Process.env.NODE_ENV === "production") {
+if(process.env.NODE_ENV === "production") {
     //serve static files(frontend) to express server
     app.use(express.static(path.join(__dirname, "../frontend/dist")))
 
