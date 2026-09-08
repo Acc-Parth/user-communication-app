@@ -69,3 +69,46 @@ export const signup = async (req, res) => {
         res.status(500).json({message: "Internal server error"});
     }
 }
+
+export const login = async (req, res) => {
+    // Extracting the data from the request body
+    const {email, password} = req.body;
+
+    try{
+        // Checking if all fields are provided
+        if(!email || !password){
+            return res.status(400).json({message: "All fields are required"});
+        }
+
+        // Checking if the user exists in the database
+        const user = await User.findOne({email});
+        if(!user){
+            return res.status(400).json({message: "Invalid credentials"});
+        }
+        // Comparing the provided password with the hashed password stored in the database
+        const isCorrectPassword = await bcrypt.compare(password, user.password);
+        if(!isCorrectPassword){
+            return res.status(400).json({message: "Invalid credentials"});
+        }
+
+        // If the credentials are valid, generate a token and send the user data in the response
+        generateToken(user._id, res);
+        res.status(200).json({
+            _id: user._id,
+            fullName: user.fullName,
+            email: user.email,
+            profilePicture: user.profilePicture,
+        });
+    }
+    // Handling any errors that occur during the login process
+    catch(error){
+        console.log("Error in login controller", error);
+        res.status(500).json({message: "Internal server error"});
+    }
+}
+
+export const logout = (_, res) => {
+    // Clearing the token cookie to log the user out
+    res.clearCookie("jwt", "", {maxAge: 0});
+    res.status(200).json({message: "Logged out successfully"});
+}
