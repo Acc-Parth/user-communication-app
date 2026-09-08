@@ -1,14 +1,12 @@
 // const express = require("express"); => traditional commonjs import
 import express from "express"; // => es6 module import
-import dotenv from "dotenv";
 import authRoutes from "./routes/auth.route.js";
 import msgRoutes from "./routes/messages.route.js";
 import path from "path"; //In-built in nodejs
 import { connectDB } from "./lib/db.js"; // import the connectDB function from db.js
+import { ENV } from "./lib/env.js"; // import the ENV object from env.js
 
-dotenv.config();
-
-const PORT = process.env.PORT || 3000;
+const PORT = ENV.PORT || 3000;
 
 const app = express();
 const __dirname = path.resolve(); // to get the current directory path
@@ -19,7 +17,7 @@ app.use("/api/auth", authRoutes);
 app.use("/api/messages", msgRoutes);
 
 // Deployment ready code
-if(process.env.NODE_ENV === "production") {
+if(ENV.NODE_ENV === "production") {
     //serve static files(frontend) to express server
     app.use(express.static(path.join(__dirname, "../frontend/dist")))
 
