@@ -3,6 +3,7 @@ import User from "../models/User.js";
 import { generateToken } from "../lib/utils.js";
 import { sendWelcomeEmail } from "../emails/emailHandler.js";
 import { ENV } from "../lib/env.js";
+import cloudinary from "../lib/cloudinary.js";
 
 export const signup = async (req, res) => {
     // Extracting the data from the request body
@@ -111,4 +112,28 @@ export const logout = (_, res) => {
     // Clearing the token cookie to log the user out
     res.clearCookie("jwt", "", {maxAge: 0});
     res.status(200).json({message: "Logged out successfully"});
+}
+
+export const updateProfile = async (req, res) => {
+    try {
+        // Extracting the profile picture from the request body
+        const { profilePicture } = req.body;
+        if(!profilePicture) return res.status(400).json({message: "Profile picture is required"});
+
+        // Get the user ID from the request object (set by protectRoute middleware)
+        const userId = req.user._id; // Get the user ID from the request object (set by protectRoute middleware)
+
+        // Upload the profile picture to Cloudinary and get the secure URL
+        const uploadResponse = await cloudinary.uploader.upload(profilePicture);
+
+        // Update the user's profile picture in the database and return the updated user data
+        const updatedUser = await User.findByIdAndUpdate(userId, { profilePicture: uploadResponse.secure_url }, { new: true });
+
+        // Send the updated user data in the response
+        res.status(200).json(updatedUser);
+    }
+    catch(error){
+        console.log("Error in updateProfile controller", error);
+        res.status(500).json({message: "Internal server error"});
+    }
 }

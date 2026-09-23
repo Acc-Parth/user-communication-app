@@ -1,5 +1,6 @@
 // const express = require("express"); => traditional commonjs import
 import express from "express"; // => es6 module import
+import cookieParser from "cookie-parser"; // to parse cookies from incoming requests
 import authRoutes from "./routes/auth.route.js";
 import msgRoutes from "./routes/messages.route.js";
 import path from "path"; //In-built in nodejs
@@ -12,6 +13,7 @@ const app = express();
 const __dirname = path.resolve(); // to get the current directory path
 
 app.use(express.json()); // to parse incoming JSON requests
+app.use(cookieParser()); // to parse cookies from incoming requests
 
 app.use("/api/auth", authRoutes);
 app.use("/api/messages", msgRoutes);
